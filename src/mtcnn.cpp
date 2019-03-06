@@ -90,10 +90,10 @@ vector<Mtcnn::_BBox> Mtcnn::GetCandidates(const float scale,
         condidates.emplace_back();
         _BBox & _bbox = *condidates.rbegin();
         _bbox.score = score;
-        _bbox.x1 = round((j * stride + 1) * inv_scale) - 1;
-        _bbox.y1 = round((i * stride + 1) * inv_scale) - 1;
-        _bbox.x2 = round((j * stride + cell_size) * inv_scale);
-        _bbox.y2 = round((i * stride + cell_size) * inv_scale);
+        _bbox.x1 = static_cast<int>(round((j * stride + 1) * inv_scale) - 1);
+        _bbox.y1 = static_cast<int>(round((i * stride + 1) * inv_scale) - 1);
+        _bbox.x2 = static_cast<int>(round((j * stride + cell_size) * inv_scale));
+        _bbox.y2 = static_cast<int>(round((i * stride + cell_size) * inv_scale));
         for (int i = 0; i < 4; i++)
           _bbox.regs[i] = loc_data[i][id];
       }
