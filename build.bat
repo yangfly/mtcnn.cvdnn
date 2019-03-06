@@ -18,7 +18,7 @@ pause
   goto :eof
 
 :set_vs2015
-  set set generator="Visual Studio 14 2015 Win64"
+  set generator="Visual Studio 14 2015 Win64"
   set folder=vc14
   goto :eof
 
