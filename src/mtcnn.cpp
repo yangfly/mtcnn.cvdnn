@@ -1,9 +1,4 @@
 #include <algorithm>  // std::min, std::max, std::sort
-//#define USE_OPENMP
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
-
 #include <opencv2/imgproc.hpp>
 #include "mtcnn.h"
 using namespace std;
@@ -192,16 +187,13 @@ vector<Mtcnn::_BBox> Mtcnn::ProposalNetwork(const cv::Mat & image)
   vector<float> scales = ScalePyramid(min_len);
   vector<cv::String> out_names = { "prob1", "conv4-2" };
   vector<_BBox> total_bboxes;
-#ifdef USE_OPENMP
-  #pragma omp parallel for
-#endif
   for (float scale : scales) {
     int width = static_cast<int>(ceil(image.cols * scale));
     int height = static_cast<int>(ceil(image.rows * scale));
     cv::Mat input;
     cv::resize(image, input, cv::Size(width, height));
     vector<cv::Mat> out_blobs;
-    Pnet.setInput(cv::dnn::blobFromImage(input), "data");
+    Pnet.setInput(cv::dnn::blobFromImage(input, 1.f, cv::Size(), cv::Scalar(), false), "data");
     Pnet.forward(out_blobs, out_names);
     vector<_BBox> scale_bboxes = GetCandidates(scale, out_blobs[0], out_blobs[1]);
     // intra scale nms
@@ -230,7 +222,7 @@ void Mtcnn::RefineNetwork(const cv::Mat & image, vector<Mtcnn::_BBox> & _bboxes)
   }
   vector<cv::String> out_names = { "prob1", "fc5-2" };
   vector<cv::Mat> out_blobs;
-  Rnet.setInput(cv::dnn::blobFromImages(inputs), "data");
+  Rnet.setInput(cv::dnn::blobFromImages(inputs, 1.f, cv::Size(), cv::Scalar(), false), "data");
   Rnet.forward(out_blobs, out_names);
   const float* conf_data = out_blobs[0].ptr<float>(0);
   const float* loc_data = out_blobs[1].ptr<float>(0);
@@ -270,7 +262,7 @@ void Mtcnn::OutputNetwork(const cv::Mat & image, vector<Mtcnn::_BBox> & _bboxes)
   }
   vector<cv::String> out_names = { "prob1", "fc6-2", "fc6-3" };
   vector<cv::Mat> out_blobs;
-  Onet.setInput(cv::dnn::blobFromImages(inputs), "data");
+  Onet.setInput(cv::dnn::blobFromImages(inputs, 1.f, cv::Size(), cv::Scalar(), false), "data");
   Onet.forward(out_blobs, out_names);
   const float* conf_data = out_blobs[0].ptr<float>(0);
   const float* loc_data = out_blobs[1].ptr<float>(0);
@@ -332,7 +324,7 @@ void Mtcnn::LandmarkNetwork(const cv::Mat & image, vector<Mtcnn::_BBox> & _bboxe
   vector<cv::String> out_names = { "fc5_1", "fc5_2", "fc5_3", "fc5_4", "fc5_5" };
   vector<cv::Mat> out_blobs;
   for (int i = 0; i < 5; i++)
-    Lnet.setInput(cv::dnn::blobFromImages(inputs[i]), in_names[i]);
+    Lnet.setInput(cv::dnn::blobFromImages(inputs[i], 1.f, cv::Size(), cv::Scalar(), false), in_names[i]);
   Lnet.forward(out_blobs, out_names);
   for (int i = 0; i < 5; i++) {
     const float* data = out_blobs[i].ptr<float>(0);

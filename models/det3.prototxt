@@ -17,25 +17,10 @@ layer {
   type: "Convolution"
   bottom: "data"
   top: "conv1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   convolution_param {
     num_output: 32
     kernel_size: 3
     stride: 1
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -60,25 +45,10 @@ layer {
   type: "Convolution"
   bottom: "pool1"
   top: "conv2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   convolution_param {
     num_output: 64
     kernel_size: 3
     stride: 1
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -103,24 +73,9 @@ layer {
   type: "Convolution"
   bottom: "pool2"
   top: "conv3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   convolution_param {
     num_output: 64
     kernel_size: 3
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -145,24 +100,9 @@ layer {
   type: "Convolution"
   bottom: "pool3"
   top: "conv4"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   convolution_param {
     num_output: 128
     kernel_size: 2
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -176,32 +116,8 @@ layer {
   type: "InnerProduct"
   bottom: "conv4"
   top: "fc5"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   inner_product_param {
     num_output: 256
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "drop5"
-  type: "Dropout"
-  bottom: "fc5"
-  top: "fc5"
-  dropout_param {
-    dropout_ratio: 0.25
   }
 }
 layer {
@@ -215,23 +131,8 @@ layer {
   type: "InnerProduct"
   bottom: "fc5"
   top: "fc6-1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   inner_product_param {
     num_output: 2
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -239,23 +140,8 @@ layer {
   type: "InnerProduct"
   bottom: "fc5"
   top: "fc6-2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   inner_product_param {
     num_output: 4
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
@@ -263,23 +149,8 @@ layer {
   type: "InnerProduct"
   bottom: "fc5"
   top: "fc6-3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
   inner_product_param {
     num_output: 10
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
   }
 }
 layer {
