@@ -16,8 +16,13 @@ file(GLOB MTCNN_HDR ${CMAKE_CURRENT_LIST_DIR}/src/*.h
                     ${CMAKE_CURRENT_LIST_DIR}/src/*.hpp)
 file(GLOB MTCNN_SRC ${CMAKE_CURRENT_LIST_DIR}/src/*.cc
                     ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
+set (CONVERTER_SRC ${CMAKE_CURRENT_LIST_DIR}/src/converter.cpp)
+list(REMOVE_ITEM MTCNN_SRC ${CONVERTER_SRC})
 
 add_executable(${name} ${MTCNN_SRC} ${MTCNN_HDR})
 target_link_libraries(${name} ${MTCNN_LINKER_LIBS})
+
+add_executable(converter ${CONVERTER_SRC})
+target_link_libraries(converter ${MTCNN_LINKER_LIBS})
 
 # add_library(${name} SHARED ${MTCNN_SRC} ${MTCNN_HDR})

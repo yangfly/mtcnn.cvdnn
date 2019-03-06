@@ -15,11 +15,11 @@ Mtcnn::Mtcnn(const string & model_dir, bool Lnet) :
   lnet(Lnet)
 {
   // load models
-  Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/det1.caffemodel");
-	Rnet = cv::dnn::readNet(model_dir + "/det2.prototxt", model_dir + "/det2.caffemodel");
-	Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/det3.caffemodel");
-	if (lnet)
-		this->Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/det4.caffemodel");
+  Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/det1.fp16.caffemodel");
+  Rnet = cv::dnn::readNet(model_dir + "/det2.prototxt", model_dir + "/det2.fp16.caffemodel");
+  Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/det3.fp16.caffemodel");
+  if (lnet)
+    this->Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/det4.fp16.caffemodel");
 }
 
 Mtcnn::~Mtcnn() {}
