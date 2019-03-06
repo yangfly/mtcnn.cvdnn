@@ -42,8 +42,8 @@ set VS=2015
 
   模式   |   时间
 :------: | :------:
- w LNet  | 20.39 ms
-w/o LNet | 19.38 ms
+ w LNet  | 20.20 ms
+w/o LNet | 18.42 ms
 
 ![](TIME.jpg)
 
