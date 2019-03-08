@@ -63,6 +63,12 @@ fastP16 | :heavy_check_mark: | :heavy_check_mark: | 13.74 ms | 12.20 ms | 39.69 
 
 ![](images/FDDB.jpg)
 
+### 工具
+
+- `shrink_models`: 自动转换所有模型到 float16。
+- `performance`：统计在 sample.jpg 上进行 100 次前向的时间。
+- `fddb_detect`：检测并生成 FDDB 格式文件，需要 FDDB 数据集。
+
 ### 参考与致谢
 
 - [MTCNN_face_detection_alignment](https://github.com/kpzhang93/MTCNN_face_detection_alignment/tree/master/code/codes/MTCNNv2/model) @kpzhang93
