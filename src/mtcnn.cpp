@@ -2,7 +2,6 @@
 #include <opencv2/imgproc.hpp>
 #include "mtcnn.h"
 using namespace std;
-using namespace face;
 
 #include <limits>
 int fix(float f)
@@ -11,15 +10,29 @@ int fix(float f)
   return static_cast<int>(f);
 }
 
-Mtcnn::Mtcnn(const string & model_dir, bool Lnet) :
-  lnet(Lnet)
+#include <iostream>
+using namespace std;
+Mtcnn::Mtcnn(const string & model_dir, bool fdet1, bool fp16)
 {
   // load models
-  Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/det1.caffemodel");
-	Rnet = cv::dnn::readNet(model_dir + "/det2.prototxt", model_dir + "/det2.caffemodel");
-	Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/det3.caffemodel");
-	if (lnet)
-		this->Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/det4.caffemodel");
+  if (fp16) {
+    if (fdet1)
+      Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/fp16/fdet1.caffemodel");
+    else
+      Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/fp16/det1.caffemodel");
+    Rnet = cv::dnn::readNet(model_dir + "/det2.prototxt", model_dir + "/fp16/det2.caffemodel");
+    Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/fp16/det3.caffemodel");
+    Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/fp16/det4.caffemodel");
+  }
+  else {
+    if (fdet1)
+      Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/fp32/fdet1.caffemodel");
+    else
+      Pnet = cv::dnn::readNet(model_dir + "/det1.prototxt", model_dir + "/fp32/det1.caffemodel");
+    Rnet = cv::dnn::readNet(model_dir + "/det2.prototxt", model_dir + "/fp32/det2.caffemodel");
+    Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/fp32/det3.caffemodel");
+    Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/fp32/det4.caffemodel");
+  }
 }
 
 Mtcnn::~Mtcnn() {}
@@ -30,7 +43,7 @@ vector<BBox> Mtcnn::Detect(const cv::Mat & image)
   vector<_BBox> _bboxes = ProposalNetwork(image);
   RefineNetwork(image, _bboxes);
   OutputNetwork(image, _bboxes);
-  if (precise_landmark && lnet)
+  if (precise_landmark)
     LandmarkNetwork(image, _bboxes);
   vector<BBox> bboxes;
   for (const _BBox & _bbox : _bboxes)
@@ -41,7 +54,7 @@ vector<BBox> Mtcnn::Detect(const cv::Mat & image)
 BBox Mtcnn::Landmark(const cv::Mat & image, BBox bbox) {
   vector<_BBox> _bboxes = { _BBox(bbox) };
   OutputNetwork(image, _bboxes);
-  if (precise_landmark && lnet)
+  if (precise_landmark)
     LandmarkNetwork(image, _bboxes);
   if (!_bboxes.empty()) {
     return _bboxes[0].base();

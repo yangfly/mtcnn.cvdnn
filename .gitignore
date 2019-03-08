@@ -1,2 +1,3 @@
-opencv*
+opencv
 build
+fp16

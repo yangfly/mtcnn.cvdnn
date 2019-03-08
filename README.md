@@ -23,7 +23,7 @@ git clone https://github.com/yangfly/face.cvdnn.git
 3. 快捷键 `Ctrl + F5` 快速生成 Release X64 版本并运行；
 4. 如果要生成 Debug 版本，请将 `工程` → `属性` → `Debug` → `连接器` → `输入` → `附加依赖项` 中的 `opencv_world432.lib` 修改为 `opencv_world432d.lib`。
 
-**注意**：build.bat 脚本模型构建 VS2017 工程，如果要构建 VS2015 工程，请首先将 build.bat 的第一行改为：
+**注意**：build.bat 脚本默认构建 VS2017 工程，如果要构建 VS2015 工程，请首先将 build.bat 的第一行改为：
 ```
 set VS=2015
 ```
@@ -36,22 +36,32 @@ set VS=2015
 
 ### 性能与准确率
 
-- Win10 CPU 速度
+##### Win10 CPU
 
-单核：Intel(R) Core(TM) i5-4590 @ 3.30GHz
+- 测试环境：Win10 Inter(R) Core(TM) i5-4590 @ 3.30GHz
+- w|w/o Lnet：在 sample.jpg 上前向 100 次的平均速度，
+- Float16：相对于 Float32，预测速度和准确率几乎没有变化，但是模型容量缩小一半。
+- FDDB：参数 
+- FDDB Time：Fast PNet 相对于 Pnet，通过减少通道数，以节省前向时间。在 FDDB Time 上时间反而长，是因为 Fast Pnet 准确率的下降，导致 Rnet 需要承担更多筛选 False Examples 的工作量，具体而言，`fastP32` 相对于 `mtcnn32`，RNet 的用时占比从 30.57% 上升到了 52.18%。
 
-  模式   |   时间
-:------: | :------:
- w LNet  | 20.39 ms
-w/o LNet | 19.38 ms
+模式名  |      Float16       |     Fast Pnet      |  w Lnet  | w/o Lnet | FDDB Time | FDDB Disc | FDDB Cont | 误检数
+:-----: | :----------------: | :----------------: | :------: | :------: | :-------: | :-------: | :-------: | :----:
+mtcnn32 |        :x:         |        :x:         | 20.08 ms | 18.34 ms | 30.08 ms  |   93.00   |   70.02   |  363
+mtcnn16 | :heavy_check_mark: |        :x:         | 20.10 ms | 18.65 ms | 29.60 ms  |   92.92   |   69.95   |  363
+fastP32 |        :x:         | :heavy_check_mark: | 14.54 ms | 12.48 ms | 39.89 ms  |   90.93   |   68.52   |  268
+fastP16 | :heavy_check_mark: | :heavy_check_mark: | 13.74 ms | 12.20 ms | 39.69 ms  |   90.93   |   68.53   |  269
 
-![](TIME.jpg)
 
-- FDDB 测试结果：
+### FDDB 评估
 
-**注意** 我们只用 **363** 个误检对比论文的 **2000** 个误检，从曲线上看，结果相对于官方 matlab 版的精度，毫不逊色。
+##### 测试参数：
+- face_min_size = 40
+- face_max_size = 500
+- scale_factor = 0.709f
+- thresholds = [0.8f, 0.9f, 0.9f]
+- precise_landmark = True # with Lnet
 
-![](FDDB.jpg)
+![](images/FDDB.jpg)
 
 ### 参考与致谢
 
