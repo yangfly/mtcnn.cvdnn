@@ -2,10 +2,7 @@
 #define FACE_MTCNN_H_
 
 #include <opencv2/dnn.hpp>
-// #include <momory.hpp>
 
-namespace face
-{
 // Bounding box for hold score, box and facial points
 class BBox {
 public:
@@ -34,8 +31,10 @@ class Mtcnn
 {
 public:
   /// @brief Constructor.
-  /// @brief Lnet: whether to load Lnet.
-  Mtcnn(const std::string & model_dir, bool Lnet = true);
+  /// @brief whether to use fdet1 model instead of original det1.
+  /// @brief fp16: whether to use fp16 model.
+  /// You can use shrink_models to convert fp32 models to fp16.
+  Mtcnn(const std::string & model_dir, bool fdet1 = false, bool fp16 = false);
   ~Mtcnn();
   /// @brief Detect faces from image
   std::vector<BBox> Detect(const cv::Mat & image);
@@ -78,7 +77,6 @@ private:
 
   // networks
   cv::dnn::Net Pnet, Rnet, Onet, Lnet;
-  bool lnet;
 
   /// @brief Create scale pyramid: down order
   std::vector<float> ScalePyramid(const int min_len);
@@ -104,6 +102,5 @@ private:
   void LandmarkNetwork(const cv::Mat & image, std::vector<_BBox> & _bboxes);
 };	// class MTCNN
 
-} // namespace face
 
 #endif // FACE_MTCNN_H_
