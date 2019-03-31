@@ -79,8 +79,9 @@ fastP16 | :heavy_check_mark: | :heavy_check_mark: | 13.74 ms | 12.20 ms | 39.69 
 
 以上两种建议在代码中都有实现，如果需要分别解注释 `GaussianBlur` 和 `BoxFilter` 即可。
 
+
 ### 参考与致谢
 
 - [MTCNN_face_detection_alignment](https://github.com/kpzhang93/MTCNN_face_detection_alignment/tree/master/code/codes/MTCNNv2/model) @kpzhang93
-- [Fast MTCNN](https://github.com/szad670401/Fast-MTCNN) @Jack Yu
+- [Fast MTCNN](https://github.com/szad670401/Fast-MTCNN) @Jack Yu **推荐：对 Pnet 和 Onet 进行通道缩减，有明显加速效果。**
 - [OpenCV](https://github.com/opencv/opencv)
