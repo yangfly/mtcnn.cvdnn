@@ -2,6 +2,8 @@
 
 [MTCNN](https://github.com/kpzhang93/MTCNN_face_detection_alignment) 是一个快速的人脸检测和对齐算法。本仓库使用 c++ 基于 OpenCV dnn 进行检测。 
 
+![](images/det.jpg)
+
 ## 主要环境
 
 - git
@@ -68,6 +70,14 @@ fastP16 | :heavy_check_mark: | :heavy_check_mark: | 13.74 ms | 12.20 ms | 39.69 
 - `shrink_models`: 自动转换所有模型到 float16。
 - `performance`：统计在 sample.jpg 上进行 100 次前向的时间。
 - `fddb_detect`：检测并生成 FDDB 格式文件，需要 FDDB 数据集。
+
+### 实用建议
+
+将图像存在大量噪声的应用场景中，容易存在大量高分误检，导致进入 Rnet 的 bbox 太多，拖慢 mtcnn 检测器速度，这种时候单纯地提高 Pnet 的 threshold 并不能解决问题。特别感谢 @[Jack Yu](https://github.com/szad670401) 提供了非常实用的两个建议：
+1. 对 Pnet 的输入图片进行高斯滤波，缓解噪声；
+2. 在 Pnet 每个尺度的 nms 和总体 nms 之前，过滤和其他 bbox 重叠数很少的样本（通常要求重叠数大于 n）。
+
+以上两种建议在代码中都有实现，如果需要分别解注释 `GaussianBlur` 和 `BoxFilter` 即可。
 
 ### 参考与致谢
 

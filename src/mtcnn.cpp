@@ -247,20 +247,20 @@ vector<Mtcnn::_BBox> Mtcnn::ProposalNetwork(const cv::Mat & image)
     int height = static_cast<int>(ceil(image.rows * scale));
     cv::Mat input;
     cv::resize(image, input, cv::Size(width, height));
-    //cv::GaussianBlur(input, input, cv::Size(3, 3), 1.5); // more stable
+    // cv::GaussianBlur(input, input, cv::Size(3, 3), 1.5); // more stable
     vector<cv::Mat> out_blobs;
     Pnet.setInput(cv::dnn::blobFromImage(input, 1.f, cv::Size(), cv::Scalar(), false), "data");
     Pnet.forward(out_blobs, out_names);
     vector<_BBox> scale_bboxes = GetCandidates(scale, out_blobs[0], out_blobs[1]);
     // intra scale nms
-    BoxFilter(scale_bboxes);
+    //BoxFilter(scale_bboxes);
     NonMaximumSuppression(scale_bboxes, 0.5f, IoU);
     if (!scale_bboxes.empty()) {
       total_bboxes.insert(total_bboxes.end(), scale_bboxes.begin(), scale_bboxes.end());
     }
   }
   // inter scale nms
-  BoxFilter(total_bboxes);
+  //BoxFilter(total_bboxes);
   NonMaximumSuppression(total_bboxes, 0.7f, IoU);
   BoxRegression(total_bboxes, true);
   return total_bboxes;

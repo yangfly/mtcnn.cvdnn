@@ -11,7 +11,7 @@ void demo(bool fdet1 = false, bool fp16 = false) {
 
 int main() {
   //shrink_models();
-  performance(true, false);
-  // demo(true, false);
+  // performance(true, false);
+  demo(true, false);
   return 0;
 }
