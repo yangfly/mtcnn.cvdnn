@@ -40,6 +40,7 @@ public:
   std::vector<BBox> Detect(const cv::Mat & image);
   /// @brief Get facial points of detect face by O/Lnet
   BBox Landmark(const cv::Mat & image, BBox bbox = BBox());
+  std::vector<double> getTimes();
 
   // default settings
   int face_min_size = 40;
@@ -77,12 +78,14 @@ private:
 
   // networks
   cv::dnn::Net Pnet, Rnet, Onet, Lnet;
+  cv::TickMeter t1, t2, t3;
 
   /// @brief Create scale pyramid: down order
   std::vector<float> ScalePyramid(const int min_len);
   /// @brief Get bboxes from maps of confidences and regressions.
   std::vector<_BBox> GetCandidates(const float scale,
     const cv::Mat & conf_blob, const cv::Mat & loc_blob);
+  void BoxFilter(std::vector<_BBox> & _bboxes, size_t least = 3);
   /// @brief Non Maximum Supression with type 'IoU' or 'IoM'.
   void NonMaximumSuppression(std::vector<_BBox> & _bboxes,
     const float threshold, const NMS_TYPE type);

@@ -33,6 +33,17 @@ Mtcnn::Mtcnn(const string & model_dir, bool fdet1, bool fp16)
     Onet = cv::dnn::readNet(model_dir + "/det3.prototxt", model_dir + "/fp32/det3.caffemodel");
     Lnet = cv::dnn::readNet(model_dir + "/det4.prototxt", model_dir + "/fp32/det4.caffemodel");
   }
+  t1.reset(), t2.reset(), t3.reset();
+}
+
+vector<double> Mtcnn::getTimes()
+{
+  vector<double> times(3);
+  times[0] = t1.getTimeMilli();
+  times[1] = t2.getTimeMilli();
+  times[2] = t3.getTimeMilli();
+  t1.reset(), t2.reset(), t3.reset();
+  return times;
 }
 
 Mtcnn::~Mtcnn() {}
@@ -40,9 +51,13 @@ Mtcnn::~Mtcnn() {}
 #include <iostream>
 vector<BBox> Mtcnn::Detect(const cv::Mat & image)
 {
+  t1.start();
   vector<_BBox> _bboxes = ProposalNetwork(image);
+  t1.stop(), t2.start();
   RefineNetwork(image, _bboxes);
+  t2.stop(), t3.start();
   OutputNetwork(image, _bboxes);
+  t3.stop();
   if (precise_landmark)
     LandmarkNetwork(image, _bboxes);
   vector<BBox> bboxes;
@@ -108,6 +123,33 @@ vector<Mtcnn::_BBox> Mtcnn::GetCandidates(const float scale,
       id++;
     }
   return condidates;
+}
+
+void Mtcnn::BoxFilter(std::vector<_BBox> & _bboxes, size_t least)
+{
+  size_t n = _bboxes.size();
+  if (n <= least)
+    return;
+  vector<size_t> overlaps(_bboxes.size(), 0);
+  int c = 0;
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = i + 1; j < n; j++) {
+      int x1 = std::max<int>(_bboxes[i].x1, _bboxes[j].x1);
+      int y1 = std::max<int>(_bboxes[i].y1, _bboxes[j].y1);
+      int x2 = std::min<int>(_bboxes[i].x2, _bboxes[j].x2);
+      int y2 = std::min<int>(_bboxes[i].y2, _bboxes[j].y2);
+      if (x1 < x2 && y1 < y2) {
+        overlaps[i]++;
+        overlaps[j]++;
+      }
+    }
+    if (overlaps[i] >= least) {
+      if (c < i)
+        _bboxes[c] = _bboxes[i];
+      c++;
+    }
+  }
+  _bboxes.erase(_bboxes.begin() + c, _bboxes.end());
 }
 
 void Mtcnn::NonMaximumSuppression(std::vector<Mtcnn::_BBox> & _bboxes,
@@ -205,17 +247,20 @@ vector<Mtcnn::_BBox> Mtcnn::ProposalNetwork(const cv::Mat & image)
     int height = static_cast<int>(ceil(image.rows * scale));
     cv::Mat input;
     cv::resize(image, input, cv::Size(width, height));
+    //cv::GaussianBlur(input, input, cv::Size(3, 3), 1.5); // more stable
     vector<cv::Mat> out_blobs;
     Pnet.setInput(cv::dnn::blobFromImage(input, 1.f, cv::Size(), cv::Scalar(), false), "data");
     Pnet.forward(out_blobs, out_names);
     vector<_BBox> scale_bboxes = GetCandidates(scale, out_blobs[0], out_blobs[1]);
     // intra scale nms
+    BoxFilter(scale_bboxes);
     NonMaximumSuppression(scale_bboxes, 0.5f, IoU);
     if (!scale_bboxes.empty()) {
       total_bboxes.insert(total_bboxes.end(), scale_bboxes.begin(), scale_bboxes.end());
     }
   }
   // inter scale nms
+  BoxFilter(total_bboxes);
   NonMaximumSuppression(total_bboxes, 0.7f, IoU);
   BoxRegression(total_bboxes, true);
   return total_bboxes;

@@ -22,7 +22,7 @@ cv::Mat imdraw(const cv::Mat im, const std::vector<BBox> & bboxes)
 
 void performance(bool fdet1, bool fp16, int ntimes = 100) {
   Mtcnn mtcnn("../models", fdet1, fp16);
-  cv::Mat image = cv::imread("../images/sample.jpg");
+  cv::Mat image = cv::imread("../images/test.jpg");
   std::string precise = fp16 ? "Float16" : "Float32";
   std::string model = fdet1 ? "Fast Pnet" : "Official Pnet";
   std::cout << "\nBenchmark with [" << model << "] on [" << precise
@@ -41,6 +41,10 @@ void performance(bool fdet1, bool fp16, int ntimes = 100) {
     << ", " << image.channels() << ")" << std::endl;
   std::cout << "  Performance : " << 1000 / timer.avg() << " fps" << std::endl;
   std::cout << "  Detect Time: " << timer.avg() << " ms\n" << std::endl;
+  std::vector<double> times = mtcnn.getTimes();
+  std::cout << "  Pnet stage: " << times[0] / ntimes << " ms" << std::endl;
+  std::cout << "  Rnet stage: " << times[1] / ntimes << " ms" << std::endl;
+  std::cout << "  Rnet stage: " << times[2] / ntimes << " ms" << std::endl;
 
   std::cout << "  ----------------- Without LNet ---------------\n" << std::endl;
   timer.reset();
@@ -55,6 +59,10 @@ void performance(bool fdet1, bool fp16, int ntimes = 100) {
     << ", " << image.channels() << ")" << std::endl;
   std::cout << "  Performance : " << 1000 / timer.avg() << " fps" << std::endl;
   std::cout << "  Detect Time: " << timer.avg() << " ms\n" << std::endl;
+  times = mtcnn.getTimes();
+  std::cout << "  Pnet stage: " << times[0] / ntimes << " ms" << std::endl;
+  std::cout << "  Rnet stage: " << times[1] / ntimes << " ms" << std::endl;
+  std::cout << "  Rnet stage: " << times[2] / ntimes << " ms" << std::endl;
 }
 
 #include <fstream>
